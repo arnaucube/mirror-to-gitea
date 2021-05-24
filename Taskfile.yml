@@ -16,13 +16,18 @@ tasks:
     cmds:
       - task: lint
       - task: test
+      - task: build
 
   test:
     cmds: [ go test ./... ]
 
   lint:
-    desc: lint app
+    desc: lint
     cmds: [ third_party/golangci-lint/golangci-lint run ]
+
+  build:
+    desc: build
+    cmds: [ docker image build -t jaedle/mirror-to-gitea:development -f build/Dockerfile . ]
 
   default:
     cmds: [ task: world ]
