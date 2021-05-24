@@ -20,6 +20,14 @@ var _ = Describe("Read", func() {
 		os.Clearenv()
 	})
 
+	It("parses valid configuration", func() {
+		aValidEnv()
+
+		c, err := config.Read()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(c).ToNot(BeNil())
+	})
+
 	Context("Gitea", func() {
 		It("parses configuration", func() {
 			aValidEnv()
