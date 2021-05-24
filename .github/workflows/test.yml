@@ -12,4 +12,5 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "1.16"
-      - run: echo 'TODO'
+      - uses: arduino/setup-task@v1
+      - run: task world

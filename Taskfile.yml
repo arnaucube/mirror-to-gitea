@@ -1,0 +1,15 @@
+version: '3'
+
+silent: true
+
+tasks:
+  world:
+    desc: run - literally - evertyhing ;)
+    cmds:
+      - task: test
+
+  test:
+    cmds: [ go test ./... ]
+
+  default:
+    cmds: [ task: world ]
