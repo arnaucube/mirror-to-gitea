@@ -23,14 +23,18 @@ const aGithubUsername = "a-github-user"
 const aGithubToken = "a-github-token"
 
 var _ = Describe("Read", func() {
+
+	var reader *config.Reader
+
 	BeforeEach(func() {
 		os.Clearenv()
+		reader = config.NewReader()
 	})
 
 	It("parses valid configuration", func() {
 		aValidEnv()
 
-		c, err := config.Read()
+		c, err := reader.Read()
 		Expect(err).NotTo(HaveOccurred())
 		Expect(c).ToNot(BeNil())
 	})
@@ -41,7 +45,7 @@ var _ = Describe("Read", func() {
 			setEnv(githubUsername, aGithubUsername)
 			unsetEnv(githubToken)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c.Github.Username).To(Equal(aGithubUsername))
@@ -53,7 +57,7 @@ var _ = Describe("Read", func() {
 			setEnv(githubUsername, aGithubUsername)
 			setEnv(githubToken, aGithubToken)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c.Github.Username).To(Equal(aGithubUsername))
@@ -64,7 +68,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			unsetEnv(githubUsername)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
@@ -78,7 +82,7 @@ var _ = Describe("Read", func() {
 			setEnv(giteaUrl, "https://gitea.url/api")
 			setEnv(giteaToken, "a-gitea-token")
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c.Gitea.Url).To(Equal("https://gitea.url/api"))
@@ -89,7 +93,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			unsetEnv(giteaUrl)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
@@ -100,7 +104,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			unsetEnv(giteaToken)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
@@ -114,7 +118,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			unsetEnv(mirrorMode)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c.MirrorMode).To(Equal(config.MirrorModePublic))
@@ -124,7 +128,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			setEnv(mirrorMode, in)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c.MirrorMode).To(Equal(exp))
@@ -137,7 +141,7 @@ var _ = Describe("Read", func() {
 			aValidEnv()
 			setEnv(mirrorMode, unknownMirrorMode)
 
-			c, err := config.Read()
+			c, err := reader.Read()
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())

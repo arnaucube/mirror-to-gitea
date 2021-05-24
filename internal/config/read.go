@@ -25,29 +25,6 @@ type Github struct {
 	Token    *string
 }
 
-func Read() (*Config, error) {
-	mirrorMode, err := readMirrorMode()
-	if err != nil {
-		return nil, err
-	}
-
-	gitea, err := readGiteaConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	github, err := readGithubConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Config{
-		MirrorMode: mirrorMode,
-		Gitea:      gitea,
-		Github:     github,
-	}, nil
-}
-
 func readGiteaConfig() (Gitea, error) {
 	url, a := os.LookupEnv("GITEA_URL")
 	if !a {
@@ -98,4 +75,34 @@ func readMirrorMode() (string, error) {
 		return "", fmt.Errorf("unknown mirror mode %s, please specify a valid mirror mode: PUBLIC, PRIVATE_AND_PUBLIC", input)
 	}
 
+}
+
+type Reader struct {
+}
+
+func (r Reader) Read() (*Config, error) {
+	mirrorMode, err := readMirrorMode()
+	if err != nil {
+		return nil, err
+	}
+
+	gitea, err := readGiteaConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	github, err := readGithubConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Config{
+		MirrorMode: mirrorMode,
+		Gitea:      gitea,
+		Github:     github,
+	}, nil
+}
+
+func NewReader() *Reader {
+	return &Reader{}
 }
