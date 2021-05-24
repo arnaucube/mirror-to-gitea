@@ -11,16 +11,16 @@ const MirrorModePrivateAndPublic = "PRIVATE_AND_PUBLIC"
 
 type Config struct {
 	MirrorMode string
-	Gitea      GiteaConfig
-	Github     GithubConfig
+	Gitea      Gitea
+	Github     Github
 }
 
-type GiteaConfig struct {
-	GiteaUrl   string
-	GiteaToken string
+type Gitea struct {
+	Url   string
+	Token string
 }
 
-type GithubConfig struct {
+type Github struct {
 	Username string
 	Token    *string
 }
@@ -48,29 +48,29 @@ func Read() (*Config, error) {
 	}, nil
 }
 
-func readGiteaConfig() (GiteaConfig, error) {
+func readGiteaConfig() (Gitea, error) {
 	url, a := os.LookupEnv("GITEA_URL")
 	if !a {
-		return GiteaConfig{}, errors.New("missing mandatory parameter GITEA_URL, please specify your target gitea instance")
+		return Gitea{}, errors.New("missing mandatory parameter GITEA_URL, please specify your target gitea instance")
 	}
 
 	token, a := os.LookupEnv("GITEA_TOKEN")
 	if !a {
-		return GiteaConfig{}, errors.New("missing mandatory parameter GITEA_TOKEN, please specify your gitea application token")
+		return Gitea{}, errors.New("missing mandatory parameter GITEA_TOKEN, please specify your gitea application token")
 	}
 
-	return GiteaConfig{
-		GiteaUrl:   url,
-		GiteaToken: token,
+	return Gitea{
+		Url:   url,
+		Token: token,
 	}, nil
 
 }
 
-func readGithubConfig() (GithubConfig, error) {
+func readGithubConfig() (Github, error) {
 	username, present := os.LookupEnv("GITHUB_USERNAME")
 
 	if !present {
-		return GithubConfig{}, errors.New("")
+		return Github{}, errors.New("")
 	}
 
 	var token *string = nil
@@ -78,7 +78,7 @@ func readGithubConfig() (GithubConfig, error) {
 		token = &val
 	}
 
-	return GithubConfig{
+	return Github{
 		Username: username,
 		Token:    token,
 	}, nil

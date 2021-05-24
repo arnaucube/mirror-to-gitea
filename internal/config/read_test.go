@@ -81,8 +81,8 @@ var _ = Describe("Read", func() {
 			c, err := config.Read()
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(c.Gitea.GiteaUrl).To(Equal("https://gitea.url/api"))
-			Expect(c.Gitea.GiteaToken).To(Equal("a-gitea-token"))
+			Expect(c.Gitea.Url).To(Equal("https://gitea.url/api"))
+			Expect(c.Gitea.Token).To(Equal("a-gitea-token"))
 		})
 
 		It("fails on missing gitea url", func() {
