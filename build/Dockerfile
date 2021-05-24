@@ -3,7 +3,7 @@ FROM golang:1.16-alpine as builder
 WORKDIR /app
 ADD . ./
 
-RUN ls -al && go build -o main main.go
+RUN go build -o main cmd/main.go
 
 FROM scratch as runtime
 
