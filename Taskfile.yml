@@ -16,6 +16,7 @@ tasks:
     cmds:
       - task: lint
       - task: test
+      - task: vendor
       - task: build
 
   test:
@@ -28,6 +29,13 @@ tasks:
   build:
     desc: build
     cmds: [ docker image build -t jaedle/mirror-to-gitea:development -f build/Dockerfile . ]
+
+  vendor:
+    desc: vendor dependencies
+    cmds:
+      - go mod tidy
+      - go mod verify
+      - go mod vendor
 
   default:
     cmds: [ task: world ]
