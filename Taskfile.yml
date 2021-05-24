@@ -14,17 +14,23 @@ tasks:
   world:
     desc: run - literally - evertyhing ;)
     cmds:
+      - task: format
       - task: lint
       - task: test
       - task: vendor
       - task: build
 
+  format:
+    desc: format go-sources
+    cmds: [ go fmt ./... ]
+
+  lint:
+    desc: lint go-sources
+    cmds: [ third_party/golangci-lint/golangci-lint run ]
+
   test:
     cmds: [ go test ./... ]
 
-  lint:
-    desc: lint
-    cmds: [ third_party/golangci-lint/golangci-lint run ]
 
   build:
     desc: build
