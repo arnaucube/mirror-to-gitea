@@ -1,8 +1,10 @@
 package config_test
 
 import (
+	"fmt"
 	"github.com/jaedle/mirror-to-gitea/internal/config"
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"os"
 )
@@ -10,10 +12,15 @@ import (
 const mirrorMode = "MIRROR_MODE"
 const giteaUrl = "GITEA_URL"
 const giteaToken = "GITEA_TOKEN"
+const githubUsername = "GITHUB_USERNAME"
+const githubToken = "GITHUB_TOKEN"
 
 const publicMirrorMode = "PUBLIC"
 const privateAndPublicMirrorMode = "PRIVATE_AND_PUBLIC"
 const unknownMirrorMode = "UNKNOWN"
+
+const aGithubUsername = "a-github-user"
+const aGithubToken = "a-github-token"
 
 var _ = Describe("Read", func() {
 	BeforeEach(func() {
@@ -26,6 +33,43 @@ var _ = Describe("Read", func() {
 		c, err := config.Read()
 		Expect(err).NotTo(HaveOccurred())
 		Expect(c).ToNot(BeNil())
+	})
+
+	Context("github", func() {
+		It("parses configuration", func() {
+			aValidEnv()
+			setEnv(githubUsername, aGithubUsername)
+			unsetEnv(githubToken)
+
+			c, err := config.Read()
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(c.Github.Username).To(Equal(aGithubUsername))
+			Expect(c.Github.Token).To(BeNil())
+		})
+
+		It("parses configuration with token", func() {
+			aValidEnv()
+			setEnv(githubUsername, aGithubUsername)
+			setEnv(githubToken, aGithubToken)
+
+			c, err := config.Read()
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(c.Github.Username).To(Equal(aGithubUsername))
+			Expect(*c.Github.Token).To(Equal(aGithubToken))
+		})
+
+		It("fails on missing username", func() {
+			aValidEnv()
+			unsetEnv(githubUsername)
+
+			c, err := config.Read()
+
+			Expect(err).To(HaveOccurred())
+			Expect(c).To(BeNil())
+		})
+
 	})
 
 	Context("Gitea", func() {
@@ -49,6 +93,7 @@ var _ = Describe("Read", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
+			Expect(err.Error()).To(Equal("missing mandatory parameter GITEA_URL, please specify your target gitea instance"))
 		})
 
 		It("fails on missing gitea token", func() {
@@ -59,6 +104,8 @@ var _ = Describe("Read", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
+			Expect(err.Error()).To(Equal("missing mandatory parameter GITEA_TOKEN, please specify your gitea application token"))
+
 		})
 	})
 
@@ -73,25 +120,18 @@ var _ = Describe("Read", func() {
 			Expect(c.MirrorMode).To(Equal(config.MirrorModePublic))
 		})
 
-		It("allows public mirror mode PUBLIC", func() {
+		DescribeTable("parses mirror mode: ", func(in string, exp string) {
 			aValidEnv()
-			setEnv(mirrorMode, publicMirrorMode)
+			setEnv(mirrorMode, in)
 
 			c, err := config.Read()
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(c.MirrorMode).To(Equal(config.MirrorModePublic))
-		})
-
-		It("allows mirror mode PRIVATE_AND_PUBLIC", func() {
-			aValidEnv()
-			setEnv(mirrorMode, privateAndPublicMirrorMode)
-
-			c, err := config.Read()
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(c.MirrorMode).To(Equal(config.MirrorModePrivateAndPublic))
-		})
+			Expect(c.MirrorMode).To(Equal(exp))
+		},
+			Entry("public mirror mode", publicMirrorMode, config.MirrorModePublic),
+			Entry("private mirror mode", privateAndPublicMirrorMode, config.MirrorModePrivateAndPublic),
+		)
 
 		It("fails on unknown mirror mode", func() {
 			aValidEnv()
@@ -101,6 +141,9 @@ var _ = Describe("Read", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(c).To(BeNil())
+
+			expected := "unknown mirror mode %s, please specify a valid mirror mode: PUBLIC, PRIVATE_AND_PUBLIC"
+			Expect(err.Error()).To(Equal(fmt.Sprintf(expected, unknownMirrorMode)))
 		})
 
 	})
@@ -120,4 +163,5 @@ func aValidEnv() {
 	setEnv(mirrorMode, "PUBLIC")
 	setEnv(giteaUrl, "https://gitea.url")
 	setEnv(giteaToken, "valid")
+	setEnv(githubUsername, "a-github-username")
 }
